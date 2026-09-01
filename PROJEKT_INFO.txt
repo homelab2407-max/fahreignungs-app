@@ -1,0 +1,99 @@
+================================================================================
+  🇨🇭 SCHWEIZER FAHREIGNUNGSABKLÄRUNG (MPU-SIMULATOR) - PROJEKTÜBERSICHT & DATEN
+================================================================================
+
+[1] NETZWERK- & SERVER-ADRESSEN
+--------------------------------------------------------------------------------
+• Lokale Web-Adresse (Browser auf diesem PC):
+  http://localhost:8501
+  http://127.0.0.1:8501
+
+• Netzwerk-Web-Adresse (Zugriff von anderen Geräten im LAN / WLAN):
+  http://192.168.74.155:8501
+
+• Host-IP-Adresse:       192.168.74.155 (Netzwerk-Interface: ens33)
+• Subnetz:               192.168.74.0/24
+• Broadcast-Adresse:     192.168.74.255
+• Standard-Port:         8501 (Streamlit)
+
+• SSH-Zugang:
+  ssh admin1@192.168.74.155
+  Port: 22
+
+• Hostname & Benutzer:
+  Hostname:              ubuntu-template
+  Benutzer:              admin1
+
+
+[2] VERZEICHNISSE & DATEIPFADE
+--------------------------------------------------------------------------------
+• Projekt-Wurzelverzeichnis:
+  /home/admin1/projekte/fahreignungs-app
+
+• Virtuelle Python-Umgebung (venv):
+  /home/admin1/projekte/fahreignungs-app/venv
+
+• Python Interpreter (in venv):
+  /home/admin1/projekte/fahreignungs-app/venv/bin/python3
+
+• Wichtige Projektdateien:
+  - app.py                  : Streamlit-Hauptanwendung, UI, Audio-Recorder, Scoring
+  - assessment_engine.py    : Google Gemini 2.5 Flash Anbindung, Psychometrie & TTS
+  - scenarios.py            : Fallakten, Grenzwerte (ASA/VfV), Schweizer Rechtsgrundlagen
+  - requirements.txt        : Python-Paketabhängigkeiten
+  - Dodge-Demon-Logo.png    : Logo-Grafik
+  - .streamlit/config.toml  : Theme & Dark-Mode Farbkonfiguration
+
+
+[3] BEFEHLE (STARTEN / STEUERN / VERWALTEN)
+--------------------------------------------------------------------------------
+1. In das Projektverzeichnis wechseln:
+   cd /home/admin1/projekte/fahreignungs-app
+
+2. Virtuelle Umgebung aktivieren:
+   source venv/bin/activate
+
+3. App im Vordergrund starten (für Entwicklung & Debugging):
+   streamlit run app.py --server.address 0.0.0.0 --server.port 8501
+
+4. App im Hintergrund starten (bleibt nach Schliessen des Terminals aktiv):
+   nohup /home/admin1/projekte/fahreignungs-app/venv/bin/streamlit run /home/admin1/projekte/fahreignungs-app/app.py --server.address 0.0.0.0 --server.port 8501 > /home/admin1/projekte/fahreignungs-app/streamlit.log 2>&1 &
+
+5. Laufende App-Prozesse prüfen:
+   ps aux | grep streamlit
+   ss -tulpn | grep 8501
+
+6. App beenden:
+   pkill -f "streamlit run"
+
+
+[4] SCHNITTSTELLEN, KI & API-KEYS
+--------------------------------------------------------------------------------
+• KI-Engine:             Google Gemini (google-genai SDK)
+• Standard-Modell:       gemini-2.5-flash
+• API-Key Umgebung:      export GEMINI_API_KEY="DEIN_GEMINI_API_KEY"
+  (Alternativ kann der Key direkt im Eingabefeld der Web-App eingegeben werden)
+• Google AI Studio:      https://aistudio.google.com/app/apikey
+
+• Sprachausgabe (TTS):   edge-tts (Microsoft Edge Neural Voices)
+  - Schweizer Deutsch:   de-CH-JanNeural / de-CH-LeniNeural
+  - Hochdeutsch:         de-DE-ConradNeural
+
+
+[5] INTEGRIERTE KANTONALE FALLAKTEN & RECHTSGRUNDLAGEN
+--------------------------------------------------------------------------------
+• Fall #2026-FK-89  : Kokain (Erstbefund)           - StVA Zürich (Art. 15d Abs. 1 lit. b SVG)
+• Fall #2026-AL-42  : Alkohol 1.82‰ (Fahrunfähigkeit)- SVSA Bern (Art. 91 Abs. 2 lit. a SVG)
+• Fall #2026-THC-15 : Cannabis & Trennvermögen       - StVA Aargau (Art. 15d SVG / VfV Art. 10)
+• Fall #2026-VS-99  : Via Sicura / Raserdelikt      - MFK Basel-Landschaft (Art. 90 Abs. 3/4 SVG)
+• Fall #2026-MK-63  : Mischkonsum (Alkohol & Kokain) - DVS Luzern (Art. 15d Abs. 1 lit. b SVG)
+• Fall #2026-MD-27  : MDMA & Amphetamin              - StVA St. Gallen (Art. 15d Abs. 1 lit. b SVG)
+• Fall #2026-MED-54 : Medikamente (Zolpidem/Diazepam)- MFK Solothurn (Art. 15d Abs. 1 lit. b SVG)
+• Fall #2026-VF-12  : Kontrollverweigerung/Vereitel. - SAN Wallis (Art. 91a SVG)
+• Fall #2026-AG-77  : Aggressive Nötigung/Road Rage  - StVA Zürich (Art. 16c Abs. 1 lit. a SVG)
+• Fall #2026-WD-18  : Mehrfachdelinquenz / Kaskade   - SVSA Bern (Art. 16c Abs. 2 SVG)
+• Individueller Fall: Frei konfigurierbar in der Web-Oberfläche
+
+================================================================================
+Stand: 01.09.2026
+================================================================================
