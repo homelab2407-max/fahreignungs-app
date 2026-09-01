@@ -32,11 +32,17 @@ Ermöglicht das Training und die Vorbereitung auf Fahreignungsuntersuchungen (MP
      - 🔴 **Abgelehnt**
    - Download als formatiertes Markdown (`.md`).
 
-5. **Fallakten & Szenarien:**
+5. **Fallakten & Szenarien (Polizeikontrollen & Delikte):**
    - **Kokain (Erstbefund)** – Fall `#2026-FK-89` (StVA Zürich)
    - **Alkohol 1.82‰ (Fahrunfähigkeit)** – Fall `#2026-AL-42` (SVSA Bern)
    - **Cannabis & Trennvermögen** – Fall `#2026-THC-15` (StVA Aargau)
    - **Via Sicura / Raserdelikt** – Fall `#2026-VS-99` (MFK Basel-Landschaft)
+   - **Mischkonsum (Alkohol & Kokain)** – Fall `#2026-MK-63` (DVS Luzern)
+   - **MDMA & Amphetamin (Festival-Rückreise)** – Fall `#2026-MD-27` (StVA St. Gallen)
+   - **Medikamente & Psychotrope Stoffe (Zolpidem/Diazepam)** – Fall `#2026-MED-54` (MFK Solothurn)
+   - **Kontrollverweigerung / Vereitelung (Art. 91a SVG)** – Fall `#2026-VF-12` (SAN Wallis)
+   - **Aggressive Nötigung & Road Rage** – Fall `#2026-AG-77` (StVA Zürich)
+   - **Mehrfachdelinquenz / Kaskadentäter** – Fall `#2026-WD-18` (SVSA Bern)
    - **Individueller Fall** (Benutzerdefiniert)
 
 ---
