@@ -368,7 +368,7 @@ if not st.session_state.session_active and not st.session_state.show_report:
         unsafe_allow_html=True,
     )
     
-    st.subheader("📂 1. Fallakte & Delikt-Szenario auswählen")
+    st.subheader("📂 Fallakte & Delikt-Szenario auswählen")
     
     all_scenarios = get_all_scenarios()
     scenario_titles = [f"{s['case_number']} – {s['title']}" for s in all_scenarios]
