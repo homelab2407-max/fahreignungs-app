@@ -10,8 +10,11 @@ Ermöglicht das Training und die Vorbereitung auf Fahreignungsuntersuchungen (MP
 
 1. **KI-Verkehrspsychologe (Dr. phil. Urs Meier):**
    - Fachpsychologe für Verkehrspsychologie FSP.
-   - Realistischer, fordernder Interviewstil zur Aufdeckung von Schutzbehauptungen, Bagatellisierungen und Widersprüchen zu den Akten.
    - Basiert auf dem modernen `google-genai` SDK mit Gemini 2.5 Flash.
+   - **3 wählbare Schwierigkeitsgrade & Gutachter-Stile:**
+     - 🟢 **`LACHHAFT` (Leicht):** Wohlwollender, nachsichtiger Gutachter; akzeptiert einfache Erklärungen und vergibt schnell hohe Einsichts-Scores.
+     - 🟡 **`BÖÖÖÖS` (Mittel):** Sachlich-kritischer Standard-Gutachter; bohrt bei Widersprüchen zu Messwerten und Akten gezielt nach.
+     - 🔴 **`SO PRIMITIV!` (Schwer - Maximal Realistisch):** Gnadenlos professionelle, forensisch tiefgründige Exploration nach echten VfV/ASA-Kriterien; deckt jede Schutzbehauptung und Bagatellisierung eiskalt auf.
 
 2. **Dynamisches Live-Scoring & Psychometrie:**
    - **Einsichtsfähigkeit** (0–100%)

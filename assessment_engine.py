@@ -26,6 +26,52 @@ TTS_VOICES = {
 }
 
 
+# Verfügbare Schwierigkeitsgrade
+DIFFICULTY_LEVELS: Dict[str, Dict[str, Any]] = {
+    "LACHHAFT": {
+        "name": "LACHHAFT",
+        "level": "Leicht",
+        "badge_color": "#2ea043",
+        "icon": "🟢",
+        "description": "Nachsichtig & wohlwollend. Akzeptiert einfache Erklärungen und Standard-Reue. Vergibt schnell hohe Einsichts-Scores.",
+        "prompt_instruction": """SCHWIERIGKEITSGRAD: 'LACHHAFT' (Leicht / Sanfter Modus)
+- Du bist ein wohlwollender, verständnisvoller Gutachter.
+- Stelle einfache, freundliche und leicht zu beantwortende Fragen.
+- Akzeptiere einfache Begründungen, Reuebekundungen und Entschuldigungen des Probanden wohlwollend.
+- Bohre nicht tief bei Widersprüchen, sondern gib dem Probanden eher Hilfestellungen.
+- Erhöhe die Einsichts- und Transparenz-Scores bei kooperativen Antworten grosszügig (z.B. +15 bis +25 Punkte)."""
+    },
+    "BÖÖÖÖS": {
+        "name": "BÖÖÖÖS",
+        "level": "Mittel",
+        "badge_color": "#e3b341",
+        "icon": "🟡",
+        "description": "Scharf & fordernd. Hinterfragt Ausreden und Widersprüche zu den Laborwerten gezielt.",
+        "prompt_instruction": """SCHWIERIGKEITSGRAD: 'BÖÖÖÖS' (Mittel / Kritischer Standard)
+- Du bist ein sachlich-kritischer, fordernder Verkehrspsychologe.
+- Du glaubst Standard-Schutzbehauptungen nicht unbesehen.
+- Du hakst gezielt nach, wenn die Schilderung des Probanden nicht mit den Messwerten oder dem Polizeibericht übereinstimmt.
+- Du verlangst nachvollziehbare Erklärungen für Konsummuster, Risikowahrnehmung und Vermeidungsstrategien.
+- Die Punktevergabe erfolgt realistisch und differenziert."""
+    },
+    "SO PRIMITIV!": {
+        "name": "SO PRIMITIV!",
+        "level": "Schwer (Maximal Realistisch)",
+        "badge_color": "#f85149",
+        "icon": "🔴",
+        "description": "Echtes VfV/ASA-Gutachterniveau. Gnadenlos analytisch, forensisch tiefgründig, deckt jede kognitive Dissonanz und Bagatellisierung eiskalt auf.",
+        "prompt_instruction": """SCHWIERIGKEITSGRAD: 'SO PRIMITIV!' (Schwer / Maximal realistisch & forensisch tiefgründig)
+- Du führst ein HÖCHST REALISTISCHES, GNADENLOS PROFESSIONELLES Explorationsgespräch auf dem Niveau der strengsten Schweizer Verkehrspsychologen (ASA / VfV).
+- Du durchschaust ausnahmslos jede Bagatellisierung, jede kognitive Dissonanz, jede Ausflucht ('War beruflicher Stress', 'Freunde haben mich angestiftet', 'Habe mich fahrtüchtig gefühlt', 'Wurde von anderen provoziert') und jedes Lippenbekenntnis sofort.
+- Du zerlegst Schutzbehauptungen analytisch und konfrontierst den Probanden direkt und eiskalt mit den harten Fakten: Laborwerten, Halbwertszeiten, toxikologischer Realität, Reaktionsverzögerungen und der Rechtslage.
+- Du bohrst tief in der Persönlichkeitsstruktur: Welche seelischen Motive, welcher Kontrollverlust, welches Dominanzverhalten, welche emotionale Instabilität oder welches mangelnde Trennvermögen stecken wirklich dahinter?
+- Du forderst lückenlose, tief verinnerlichte Verhaltensänderungen und geprüfte Coping-Mechanismen. Reine Absichtserklärungen weisst du als ungenügend zurück.
+- Deine Fragen sind präzise, psychologisch geschliffen, fordernd und absolut authentisch wie in einer realen Fahreignungsbegutachtung.
+- Bewertung: Äusserst streng. Ausweichende, uneinsichtige oder verharmlosende Antworten führen zu Punktabzug und Hochstufung des Rückfallrisikos auf 'Hoch'."""
+    }
+}
+
+
 def get_gemini_client(api_key: Optional[str] = None) -> Optional[genai.Client]:
     """Initialisiert den Gemini Client mit dem angegebenen Key oder aus der Umgebung."""
     key = api_key or os.environ.get("GEMINI_API_KEY")
@@ -37,9 +83,11 @@ def get_gemini_client(api_key: Optional[str] = None) -> Optional[genai.Client]:
         return None
 
 
-def build_system_prompt(scenario: Dict[str, Any]) -> str:
-    """Erstellt den verkehrspsychologischen System-Prompt für das gewählte Szenario."""
+def build_system_prompt(scenario: Dict[str, Any], difficulty: str = "SO PRIMITIV!") -> str:
+    """Erstellt den verkehrspsychologischen System-Prompt für das gewählte Szenario und den Schwierigkeitsgrad."""
     focus_list = "\n".join(f"- {f}" for f in scenario.get("focus_areas", []))
+    diff_data = DIFFICULTY_LEVELS.get(difficulty, DIFFICULTY_LEVELS["SO PRIMITIV!"])
+    diff_instruction = diff_data.get("prompt_instruction", "")
     
     return f"""Du bist Dr. phil. Urs Meier, ein erfahrener und anerkannter Fachpsychologe für Verkehrspsychologie FSP in der Schweiz.
 Du führst im Auftrag des kantonalen Strassenverkehrsamts ({scenario.get('canton', 'Kantonales Strassenverkehrsamt')}) eine offizielle verkehrspsychologische Fahreignungsabklärung durch.
@@ -52,23 +100,25 @@ AKTENLAGE DES FALLS:
 - Rechtliche Grundlage: {scenario.get('legal_basis')}
 - Polizeibericht / Sachverhalt: {scenario.get('police_report')}
 
+GEWÄHLTER SCHWIERIGKEITSGRAD & MODUS:
+{diff_instruction}
+
 DEINE AUFGABE & VERHALTEN:
-1. Du führst ein professionelles, strukturiertes, kritisches und zugleich sachliches Explorationsgespräch auf Deutsch (mit leichtem, höflichem Schweizer Bezug wie 'Grüezi', 'Verkehrsamt', 'Führerausweis', 'Billet').
-2. Du glaubst dem Probanden nicht einfach Ausreden, Schutzbehauptungen oder Bagatellisierungen (z.B. "Ich war nur müde", "War nur ein einmaliger Ausrutscher", "Habe mich fit gefühlt", "Freunde haben mich überredet").
-3. Du hakst sofort präzise nach, wenn Widersprüche zwischen den Akten/Messwerten und den Aussagen des Probanden auftreten.
-4. Du prüfst schrittweise die 5 Phasen der verkehrspsychologischen Exploration:
+1. Du führst ein professionelles, strukturiertes Explorationsgespräch auf Deutsch (mit leichtem, höflichem Schweizer Bezug wie 'Grüezi', 'Verkehrsamt', 'Führerausweis', 'Billet').
+2. Halte dich strikt an die Verhaltensvorgaben des gewählten Schwierigkeitsgrads ('{difficulty}').
+3. Du prüfst schrittweise die 5 Phasen der verkehrspsychologischen Exploration:
    - Phase 1: Rekonstruktion des Vorfalls & Vorgeschichte
    - Phase 2: Motive, Konsummuster bzw. Fahrverhalten & Ursachen
    - Phase 3: Problembewusstsein & Reflexion über Gefahren
    - Phase 4: Nachweisbare Verhaltensänderungen, Coping-Strategien & Vermeidungsstrategie
    - Phase 5: Rückfallprophylaxe & Fazit
-5. Schwerpunkte dieses Falls:
+4. Schwerpunkte dieses Falls:
 {focus_list}
 
 WICHTIGE ANTWORTSTRUKTUR:
 Du MUSST deine Antwort IMMER als valides JSON im folgenden Format zurückgeben (kein Markdown-Block darum herum, nur pures JSON):
 {{
-  "gutachter_antwort": "Der Text, den du direkt an den Probanden sprichst (1-3 gezielte Sätze, analytisch und fordernd).",
+  "gutachter_antwort": "Der Text, den du direkt an den Probanden sprichst (1-3 gezielte Sätze, dem Schwierigkeitsgrad entsprechend formuliert).",
   "einsicht_score": 45,
   "transparenz_score": 30,
   "problembewusstsein_score": 40,
@@ -91,13 +141,14 @@ def generate_psychologist_turn(
     scenario: Dict[str, Any],
     history: List[Dict[str, str]],
     user_response: str,
-    current_scores: Optional[Dict[str, Any]] = None
+    current_scores: Optional[Dict[str, Any]] = None,
+    difficulty: str = "SO PRIMITIV!"
 ) -> Dict[str, Any]:
     """
     Sendet den Dialogverlauf an Gemini und holt die nächste Gutachter-Antwort
     inklusive aktualisierter psychologischer Scores und Notizen ab.
     """
-    system_prompt = build_system_prompt(scenario)
+    system_prompt = build_system_prompt(scenario, difficulty=difficulty)
     
     # Dialogverlauf für Prompt aufbauen
     dialogue_context = "Bisheriger Gesprächsverlauf:\n"
@@ -109,6 +160,7 @@ def generate_psychologist_turn(
     dialogue_context += (
         f"Aktuelle bisherige Scores: Einsicht={current_scores.get('einsicht', 35) if current_scores else 35}, "
         f"Transparenz={current_scores.get('transparenz', 25) if current_scores else 25}. "
+        f"Schwierigkeitsgrad: {difficulty}. "
         f"Bewerte die Probanden-Aussage psychologisch und formuliere deine nächste Frage oder Erwiderung als JSON."
     )
     
@@ -170,7 +222,8 @@ def generate_final_report(
     scenario: Dict[str, Any],
     history: List[Dict[str, str]],
     scores: Dict[str, Any],
-    observations: List[str]
+    observations: List[str],
+    difficulty: str = "SO PRIMITIV!"
 ) -> Dict[str, Any]:
     """
     Erstellt ein offizielles, strukturiertes Schweizer Verkehrspsychologisches Gutachten
@@ -190,6 +243,7 @@ DATEN ZUR PERSON & ZUM FALL:
 - Delikt / Anlass: {scenario.get('category')}
 - Datum / Messwerte: {scenario.get('blood_values')}
 - Rechtliche Grundlage: {scenario.get('legal_basis')}
+- Explorationsmodus / Anforderungsgrad: {difficulty}
 
 ASSESSMENT-ERGEBNISSE AUS DEM SIMULATOR:
 - Einsichtsfähigkeit: {scores.get('einsicht', 50)}%

@@ -14,6 +14,7 @@ from assessment_engine import (
     generate_final_report,
     generate_tts_audio,
     TTS_VOICES,
+    DIFFICULTY_LEVELS,
 )
 from streamlit_mic_recorder import speech_to_text
 
@@ -180,6 +181,9 @@ st.markdown(
 if "scenario_id" not in st.session_state:
     st.session_state.scenario_id = "kokain"
 
+if "difficulty" not in st.session_state:
+    st.session_state.difficulty = "SO PRIMITIV!"
+
 if "session_active" not in st.session_state:
     st.session_state.session_active = False
 
@@ -260,8 +264,9 @@ with st.sidebar:
             index=0
         )
     
-    # Aktuelles Szenario laden
+    # Aktuelles Szenario & Schwierigkeitsgrad laden
     current_scenario = get_scenario(st.session_state.scenario_id)
+    current_diff = DIFFICULTY_LEVELS.get(st.session_state.difficulty, DIFFICULTY_LEVELS["SO PRIMITIV!"])
     
     # Dossier-Info Box
     st.markdown(
@@ -277,6 +282,13 @@ with st.sidebar:
             {current_scenario['category']}
         </div>
         <div style="font-size: 11px; color: #8b949e; margin-top: 4px;">{current_scenario.get('blood_values', '')}</div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-title">Schwierigkeitsgrad</div>
+        <div style="font-size: 15px; font-weight: 700; color: {current_diff['badge_color']}; margin-top: 2px;">
+            {current_diff['icon']} {current_diff['name']}
+        </div>
+        <div style="font-size: 11px; color: #8b949e; margin-top: 4px;">{current_diff['level']}</div>
     </div>
     """,
         unsafe_allow_html=True,
@@ -330,6 +342,7 @@ with st.sidebar:
                         history=st.session_state.messages,
                         scores=st.session_state.scores,
                         observations=st.session_state.observations,
+                        difficulty=st.session_state.difficulty,
                     )
                 else:
                     report_result = {
@@ -402,6 +415,43 @@ if not st.session_state.session_active and not st.session_state.show_report:
                 {''.join(f'<li>{f}</li>' for f in chosen_scenario['focus_areas'])}
             </ul>
         </div>
+    </div>
+    """,
+        unsafe_allow_html=True,
+    )
+    
+    # Schwierigkeitsgrad auswählen
+    st.write("")
+    st.subheader("⚡ Schwierigkeitsgrad & Gutachter-Strenge")
+    
+    diff_keys = list(DIFFICULTY_LEVELS.keys())
+    current_diff_idx = diff_keys.index(st.session_state.difficulty) if st.session_state.difficulty in diff_keys else 2
+    
+    chosen_diff_idx = st.radio(
+        "Wählen Sie das verkehrspsychologische Anforderungsniveau:",
+        options=range(len(diff_keys)),
+        format_func=lambda i: f"{DIFFICULTY_LEVELS[diff_keys[i]]['icon']} {DIFFICULTY_LEVELS[diff_keys[i]]['name']}  ({DIFFICULTY_LEVELS[diff_keys[i]]['level']})",
+        index=current_diff_idx,
+        horizontal=True,
+        key="difficulty_radio_selector"
+    )
+    st.session_state.difficulty = diff_keys[chosen_diff_idx]
+    selected_diff = DIFFICULTY_LEVELS[st.session_state.difficulty]
+    
+    st.markdown(
+        f"""
+    <div style="background-color: #161b22; border-left: 4px solid {selected_diff['badge_color']}; border-radius: 8px; padding: 14px 18px; margin-top: 8px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 15px; font-weight: 700; color: {selected_diff['badge_color']};">
+                {selected_diff['icon']} Modus: {selected_diff['name']}
+            </span>
+            <span style="font-size: 12px; color: #8b949e; background-color: #21262d; padding: 2px 8px; border-radius: 10px;">
+                Stufe: {selected_diff['level']}
+            </span>
+        </div>
+        <p style="color: #c9d1d9; font-size: 13px; margin: 8px 0 0 0; line-height: 1.4;">
+            {selected_diff['description']}
+        </p>
     </div>
     """,
         unsafe_allow_html=True,
@@ -483,6 +533,8 @@ elif st.session_state.show_report and st.session_state.final_report_data:
 
 # C. LIVE-EXPLORATION (DIALOG)
 else:
+    active_diff = DIFFICULTY_LEVELS.get(st.session_state.difficulty, DIFFICULTY_LEVELS["SO PRIMITIV!"])
+    
     # Phase & Status Header
     st.markdown(
         f"""
@@ -491,8 +543,11 @@ else:
             <span style="font-size: 12px; color: #8b949e; text-transform: uppercase; font-weight: 700;">Status:</span>
             <span style="color: #58a6ff; font-weight: 600; margin-left: 8px;">{st.session_state.current_phase}</span>
         </div>
-        <div>
-            <span style="font-size: 12px; color: #8b949e;">Akte: <strong style="color: #f0f6fc;">{current_scenario['case_number']}</strong> ({current_scenario['category']})</span>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 12px; color: #8b949e;">Akte: <strong style="color: #f0f6fc;">{current_scenario['case_number']}</strong></span>
+            <span style="background-color: {active_diff['badge_color']}; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700;">
+                {active_diff['icon']} {active_diff['name']}
+            </span>
         </div>
     </div>
     """,
@@ -577,6 +632,7 @@ else:
                     history=st.session_state.messages[:-1],
                     user_response=user_reply,
                     current_scores=st.session_state.scores,
+                    difficulty=st.session_state.difficulty,
                 )
             else:
                 turn_result = {
